@@ -13,7 +13,7 @@ namespace MongoDB
     /// Description of Document.
     /// </summary>
     [Serializable]
-    public class Document : IDictionary<string,object>, IDictionary, IXmlSerializable
+    public class Document : IDictionary<string,object>, IXmlSerializable
     {
         private readonly List<string> _orderedKeys;
         private readonly Dictionary<string,object > _dictionary;
@@ -72,30 +72,6 @@ namespace MongoDB
         public object this[string key]{
             get { return Get(key); }
             set { Set(key, value); }
-        }
-
-        /// <summary>
-        /// Gets an <see cref="T:System.Collections.Generic.ICollection`1"/> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2"/>.
-        /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// An <see cref="T:System.Collections.Generic.ICollection`1"/> containing the keys of the object that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
-        /// </returns>
-        ICollection IDictionary.Keys
-        {
-            get { return _dictionary.Keys; }
-        }
-
-        /// <summary>
-        /// Gets an <see cref="T:System.Collections.Generic.ICollection`1"/> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2"/>.
-        /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// An <see cref="T:System.Collections.Generic.ICollection`1"/> containing the values in the object that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
-        /// </returns>
-        ICollection IDictionary.Values
-        {
-            get { return _dictionary.Values; }
         }
 
         /// <summary>
@@ -244,7 +220,7 @@ namespace MongoDB
             if(key == null)
                 throw new ArgumentNullException("key");
 
-            if(!_orderedKeys.Contains(key))
+            if(!_dictionary.ContainsKey(key))
                 _orderedKeys.Add(key);
 
             _dictionary[key] = value;
@@ -294,6 +270,17 @@ namespace MongoDB
         }
 
         /// <summary>
+        /// Determines whether [contains] [the specified key].
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>
+        /// 	<c>true</c> if [contains] [the specified key]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Contains(String key){
+            return (_dictionary.ContainsKey(key));
+        }
+
+        /// <summary>
         /// Removes the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -323,42 +310,6 @@ namespace MongoDB
         }
 
         /// <summary>
-        /// Determines whether the <see cref="T:System.Collections.IDictionary"/> object contains an element with the specified key.
-        /// </summary>
-        /// <param name="key">The key to locate in the <see cref="T:System.Collections.IDictionary"/> object.</param>
-        /// <returns>
-        /// true if the <see cref="T:System.Collections.IDictionary"/> contains an element with the key; otherwise, false.
-        /// </returns>
-        /// <exception cref="T:System.ArgumentNullException">
-        /// 	<paramref name="key"/> is null.
-        /// </exception>
-        bool IDictionary.Contains(object key)
-        {
-            return _orderedKeys.Contains(Convert.ToString(key));
-        }
-
-        /// <summary>
-        /// Adds an element with the provided key and value to the <see cref="T:System.Collections.IDictionary"/> object.
-        /// </summary>
-        /// <param name="key">The <see cref="T:System.Object"/> to use as the key of the element to add.</param>
-        /// <param name="value">The <see cref="T:System.Object"/> to use as the value of the element to add.</param>
-        /// <exception cref="T:System.ArgumentNullException">
-        /// 	<paramref name="key"/> is null.
-        /// </exception>
-        /// <exception cref="T:System.ArgumentException">
-        /// An element with the same key already exists in the <see cref="T:System.Collections.IDictionary"/> object.
-        /// </exception>
-        /// <exception cref="T:System.NotSupportedException">
-        /// The <see cref="T:System.Collections.IDictionary"/> is read-only.
-        /// -or-
-        /// The <see cref="T:System.Collections.IDictionary"/> has a fixed size.
-        /// </exception>
-        void IDictionary.Add(object key, object value)
-        {
-            Add(Convert.ToString(key), value);
-        }
-
-        /// <summary>
         /// Clears the contents of the <see cref="T:System.Collections.DictionaryBase"/> instance.
         /// </summary>
         /// <exception cref="T:System.NotSupportedException">
@@ -367,44 +318,6 @@ namespace MongoDB
         public void Clear(){
             _dictionary.Clear();
             _orderedKeys.Clear();
-        }
-
-        /// <summary>
-        /// Returns an <see cref="T:System.Collections.IDictionaryEnumerator"/> object for the <see cref="T:System.Collections.IDictionary"/> object.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="T:System.Collections.IDictionaryEnumerator"/> object for the <see cref="T:System.Collections.IDictionary"/> object.
-        /// </returns>
-        IDictionaryEnumerator IDictionary.GetEnumerator()
-        {
-            return ( (IDictionary)_dictionary ).GetEnumerator();
-        }
-
-        /// <summary>
-        /// Removes the element with the specified key from the <see cref="T:System.Collections.IDictionary"/> object.
-        /// </summary>
-        /// <param name="key">The key of the element to remove.</param>
-        /// <exception cref="T:System.ArgumentNullException">
-        /// 	<paramref name="key"/> is null.
-        /// </exception>
-        /// <exception cref="T:System.NotSupportedException">
-        /// The <see cref="T:System.Collections.IDictionary"/> object is read-only.
-        /// -or-
-        /// The <see cref="T:System.Collections.IDictionary"/> has a fixed size.
-        /// </exception>
-        void IDictionary.Remove(object key)
-        {
-            Remove(Convert.ToString(key));
-        }
-
-        /// <summary>
-        /// Gets or sets the <see cref="System.Object"/> with the specified key.
-        /// </summary>
-        /// <value></value>
-        object IDictionary.this[object key]
-        {
-            get { return Get(Convert.ToString(key)); }
-            set { Set(Convert.ToString(key), value); }
         }
 
         /// <summary>
@@ -426,11 +339,11 @@ namespace MongoDB
         void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex){
             ((ICollection<KeyValuePair<string, object>>)_dictionary).CopyTo(array,arrayIndex);
         }
-
+        
         /// <summary>
-        /// Copies to items to destinationDocument.
+        /// TODO Fix any accidental reordering issues.
         /// </summary>
-        /// <param name="destinationDocument">The destination document.</param>
+        /// <param name="destinationDocument">The dest.</param>
         public void CopyTo(Document destinationDocument){
             if(destinationDocument == null)
                 throw new ArgumentNullException("destinationDocument");
@@ -438,7 +351,7 @@ namespace MongoDB
             //Todo: Fix any accidental reordering issues.
 
             foreach(var key in _orderedKeys){
-                if(destinationDocument.ContainsKey(key))
+                if(destinationDocument.Contains(key))
                     destinationDocument.Remove(key);
                 destinationDocument[key] = this[key];
             }
@@ -459,33 +372,7 @@ namespace MongoDB
                 _orderedKeys.Remove(item.Key);
             return removed;
         }
-
-        /// <summary>
-        /// Copies the elements of the <see cref="T:System.Collections.ICollection"/> to an <see cref="T:System.Array"/>, starting at a particular <see cref="T:System.Array"/> index.
-        /// </summary>
-        /// <param name="array">The one-dimensional <see cref="T:System.Array"/> that is the destination of the elements copied from <see cref="T:System.Collections.ICollection"/>. The <see cref="T:System.Array"/> must have zero-based indexing.</param>
-        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
-        /// <exception cref="T:System.ArgumentNullException">
-        /// 	<paramref name="array"/> is null.
-        /// </exception>
-        /// <exception cref="T:System.ArgumentOutOfRangeException">
-        /// 	<paramref name="index"/> is less than zero.
-        /// </exception>
-        /// <exception cref="T:System.ArgumentException">
-        /// 	<paramref name="array"/> is multidimensional.
-        /// -or-
-        /// <paramref name="index"/> is equal to or greater than the length of <paramref name="array"/>.
-        /// -or-
-        /// The number of elements in the source <see cref="T:System.Collections.ICollection"/> is greater than the available space from <paramref name="index"/> to the end of the destination <paramref name="array"/>.
-        /// </exception>
-        /// <exception cref="T:System.ArgumentException">
-        /// The type of the source <see cref="T:System.Collections.ICollection"/> cannot be cast automatically to the type of the destination <paramref name="array"/>.
-        /// </exception>
-        void ICollection.CopyTo(Array array, int index)
-        {
-            ((ICollection)_dictionary).CopyTo(array,index);
-        }
-
+        
         /// <summary>
         /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// </summary>
@@ -498,46 +385,12 @@ namespace MongoDB
         }
 
         /// <summary>
-        /// Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>.
-        /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>.
-        /// </returns>
-        object ICollection.SyncRoot
-        {
-            get { return _orderedKeys; /* no special object is need since _orderedKeys is internal.*/ }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection"/> is synchronized (thread safe).
-        /// </summary>
-        /// <value></value>
-        /// <returns>true if access to the <see cref="T:System.Collections.ICollection"/> is synchronized (thread safe); otherwise, false.
-        /// </returns>
-        bool ICollection.IsSynchronized
-        {
-            get { return false; }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
         /// </summary>
         /// <value></value>
         /// <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only; otherwise, false.
         /// </returns>
         public bool IsReadOnly{
-            get { return false; }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="T:System.Collections.IDictionary"/> object has a fixed size.
-        /// </summary>
-        /// <value></value>
-        /// <returns>true if the <see cref="T:System.Collections.IDictionary"/> object has a fixed size; otherwise, false.
-        /// </returns>
-        bool IDictionary.IsFixedSize
-        {
             get { return false; }
         }
 
